@@ -67,6 +67,10 @@ a{text-decoration:none;color:inherit}
 .pf .fg input::placeholder{color:rgba(255,255,255,.55)}
 .pf .fg input:focus{outline:none;border-color:var(--blue-lt);box-shadow:0 0 0 2px rgba(32,157,219,.25)}
 .pf-btn{width:100%;padding:14px;background:var(--white);color:var(--blue);font-family:inherit;font-weight:700;font-size:14px;border:none;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
+.pf-btn[disabled]{opacity:.7;cursor:not-allowed}
+.pf-msg{font-size:12px;line-height:1.4;margin-top:10px;display:none}
+.pf-msg.s{color:#A8E6C6;display:block}
+.pf-msg.e{color:#FFD0D0;display:block}
 .pf-lgpd{font-size:9px;color:rgba(255,255,255,.45);text-align:center;margin-top:8px;line-height:1.5}
 
 .hero-spacer{height:20px;background:var(--white)}
@@ -256,11 +260,13 @@ a{text-decoration:none;color:inherit}
       <div class="pf">
         <p class="pf-head">Preencha os dados abaixo e receba uma cotação gratuita de Seguro Garantia para licitações e contratos públicos.</p>
         <form id="leadForm" onsubmit="return false;">
+          <input type="hidden" name="id" value="245">
           <div class="fg"><input type="text" name="nome" placeholder="Nome:"></div>
           <div class="fg"><input type="text" name="cnpj" placeholder="CNPJ:"></div>
           <div class="fg"><input type="email" name="email" placeholder="E-mail:"></div>
           <div class="fg"><input type="tel" name="telefone" placeholder="Telefone:"></div>
           <button type="submit" class="pf-btn">Consulte Agora</button>
+          <p class="pf-msg" aria-live="polite"></p>
           <p class="pf-lgpd">Ao enviar seus dados, você autoriza o contato da BBMNET Licitações e seus parceiros para atendimento sobre Seguro Garantia.</p>
         </form>
       </div>
@@ -373,11 +379,13 @@ a{text-decoration:none;color:inherit}
       <div class="pf an">
         <p class="pf-head">Preencha os dados abaixo e receba uma cotação gratuita de Seguro Garantia para licitações e contratos públicos.</p>
         <form id="leadForm2" onsubmit="return false;">
+          <input type="hidden" name="id" value="245">
           <div class="fg"><input type="text" name="nome" placeholder="Nome:"></div>
           <div class="fg"><input type="text" name="cnpj" placeholder="CNPJ:"></div>
           <div class="fg"><input type="email" name="email" placeholder="E-mail:"></div>
           <div class="fg"><input type="tel" name="telefone" placeholder="Telefone:"></div>
           <button type="submit" class="pf-btn">Consulte Agora</button>
+          <p class="pf-msg" aria-live="polite"></p>
           <p class="pf-lgpd">Ao enviar seus dados, você autoriza o contato da BBMNET Licitações e seus parceiros para atendimento sobre Seguro Garantia.</p>
         </form>
       </div>
@@ -419,6 +427,97 @@ a{text-decoration:none;color:inherit}
 <script>
 document.querySelectorAll('input[name="cnpj"]').forEach(el=>{el.addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,14);if(v.length>12)v=v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d)/,'$1.$2.$3/$4-$5');else if(v.length>8)v=v.replace(/^(\d{2})(\d{3})(\d{3})(\d)/,'$1.$2.$3/$4');else if(v.length>5)v=v.replace(/^(\d{2})(\d{3})(\d)/,'$1.$2.$3');else if(v.length>2)v=v.replace(/^(\d{2})(\d)/,'$1.$2');e.target.value=v})});
 document.querySelectorAll('input[name="telefone"]').forEach(el=>{el.addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);if(v.length>6)v=v.replace(/^(\d{2})(\d{5})(\d)/,'($1) $2-$3');else if(v.length>2)v=v.replace(/^(\d{2})(\d)/,'($1) $2');e.target.value=v})});
+
+const ASAS_API_BASE='https://hlg-garantia.asasdev.net:444';
+const ASAS_OAUTH_URL=ASAS_API_BASE+'/services/garantia-security-api/oauth/token';
+const ASAS_CONSULTA_URL=ASAS_API_BASE+'/services/garantia-api/bbmnet/consultaTomador';
+const ASAS_BASIC_AUTH='Basic Z2FyYW50aWFzLXdlYi1hcHA6MXEydzNlNHIjZ2FyYW50aWFz';
+const ASAS_OAUTH_FORM='grant_type=password&username=integracao.bbmnet%40asasinsurance.com&password=%7BG5QL%21%28Avsrf';
+
+function cnpjValido(cnpj){
+  const d=cnpj.replace(/\D/g,'');
+  if(d.length!==14||/^(\d)\1+$/.test(d))return false;
+  const calc=(base,pesos)=>{const s=base.split('').reduce((a,n,i)=>a+Number(n)*pesos[i],0);const r=s%11;return r<2?0:11-r};
+  const d1=calc(d.slice(0,12),[5,4,3,2,9,8,7,6,5,4,3,2]);
+  const d2=calc(d.slice(0,12)+d1,[6,5,4,3,2,9,8,7,6,5,4,3,2]);
+  return d.endsWith(String(d1)+String(d2));
+}
+
+function setMsg(form,text,isError){
+  const m=form.querySelector('.pf-msg');
+  if(!m)return;
+  m.textContent=text||'';
+  m.className='pf-msg'+(text?(isError?' e':' s'):'');
+}
+
+async function getAsasToken(){
+  const r=await fetch(ASAS_OAUTH_URL,{method:'POST',headers:{'Authorization':ASAS_BASIC_AUTH,'Content-Type':'application/x-www-form-urlencoded'},body:ASAS_OAUTH_FORM});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.access_token){
+    throw new Error(j.error_description||j.message||'Nao foi possivel autenticar na API de cotacao.');
+  }
+  return j.access_token;
+}
+
+async function enviarConsulta(payload){
+  const token=await getAsasToken();
+  const r=await fetch(ASAS_CONSULTA_URL,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){
+    throw new Error(j.message||'Falha ao enviar dados para cotacao.');
+  }
+  return j;
+}
+
+function bindForm(id){
+  const form=document.getElementById(id);
+  if(!form)return;
+  const btn=form.querySelector('button[type="submit"]');
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const nome=(form.nome.value||'').trim();
+    const cnpjRaw=(form.cnpj.value||'').trim();
+    const email=(form.email.value||'').trim();
+    const telefoneRaw=(form.telefone.value||'').trim();
+    const idCorretor=Number(form.id.value||245);
+    const cnpj=cnpjRaw.replace(/\D/g,'');
+    const telefone=telefoneRaw.replace(/\D/g,'');
+
+    if(!nome||!email||cnpj.length!==14||telefone.length<10){
+      setMsg(form,'Preencha todos os campos obrigatorios corretamente.',true);
+      return;
+    }
+    if(!cnpjValido(cnpj)){
+      setMsg(form,'Por favor, insira um CNPJ valido.',true);
+      return;
+    }
+
+    try{
+      btn.disabled=true;
+      btn.textContent='Enviando...';
+      setMsg(form,'Enviando sua solicitacao...',false);
+      const payload={
+        telefone,
+        cnpjConsulta:cnpj,
+        email,
+        idCorretor,
+        name:nome
+      };
+      const resp=await enviarConsulta(payload);
+      const okMsg=resp.businessMessage||resp.message||'Solicitacao enviada com sucesso. Em breve entraremos em contato.';
+      setMsg(form,okMsg,false);
+    }catch(err){
+      setMsg(form,err.message||'Nao foi possivel concluir o envio agora. Tente novamente.',true);
+    }finally{
+      btn.disabled=false;
+      btn.textContent='Consulte Agora';
+    }
+  });
+}
+
+bindForm('leadForm');
+bindForm('leadForm2');
+
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');obs.unobserve(e.target)}})},{threshold:.1});
 document.querySelectorAll('.an').forEach(el=>obs.observe(el));
 document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'})});});
