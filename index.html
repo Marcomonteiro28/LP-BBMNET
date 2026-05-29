@@ -68,9 +68,21 @@ a{text-decoration:none;color:inherit}
 .pf .fg input:focus{outline:none;border-color:var(--blue-lt);box-shadow:0 0 0 2px rgba(32,157,219,.25)}
 .pf-btn{width:100%;padding:14px;background:var(--white);color:var(--blue);font-family:inherit;font-weight:700;font-size:14px;border:none;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
 .pf-btn[disabled]{opacity:.7;cursor:not-allowed}
+.pf-btn.alt{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.45)}
 .pf-msg{font-size:12px;line-height:1.4;margin-top:10px;display:none}
 .pf-msg.s{color:#A8E6C6;display:block}
 .pf-msg.e{color:#FFD0D0;display:block}
+.pf-progress{display:none;width:100%;height:8px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.14);margin-top:12px}
+.pf-progress.a{display:block}
+.pf-progress-b{width:0;height:100%;background:linear-gradient(90deg,#7fd7ff,#fff);transition:width .2s linear}
+.pf-state{display:none;margin-top:14px;border-radius:8px;padding:14px 12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07)}
+.pf-state.v{display:block}
+.pf-state h3{font-size:14px;font-weight:800;color:var(--white);margin-bottom:4px}
+.pf-state p{font-size:12px;line-height:1.5;color:rgba(255,255,255,.82)}
+.pf-state.ap{background:rgba(30,180,115,.14);border-color:rgba(126,232,187,.35)}
+.pf-state.nl{background:rgba(255,174,66,.12);border-color:rgba(255,205,125,.3)}
+.pf-actions{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.pf-actions .pf-btn{margin-top:0}
 .pf-lgpd{font-size:9px;color:rgba(255,255,255,.45);text-align:center;margin-top:8px;line-height:1.5}
 
 .hero-spacer{height:20px;background:var(--white)}
@@ -259,14 +271,16 @@ a{text-decoration:none;color:inherit}
       </div>
       <div class="pf">
         <p class="pf-head">Preencha os dados abaixo e receba uma cotação gratuita de Seguro Garantia para licitações e contratos públicos.</p>
-        <form id="leadForm" onsubmit="return false;">
+        <form id="leadForm">
           <input type="hidden" name="id" value="245">
-          <div class="fg"><input type="text" name="nome" placeholder="Nome:"></div>
-          <div class="fg"><input type="text" name="cnpj" placeholder="CNPJ:"></div>
-          <div class="fg"><input type="email" name="email" placeholder="E-mail:"></div>
-          <div class="fg"><input type="tel" name="telefone" placeholder="Telefone:"></div>
+          <div class="fg"><input type="text" name="nome" placeholder="Nome:" required></div>
+          <div class="fg"><input type="text" name="cnpj" placeholder="CNPJ:" required inputmode="numeric"></div>
+          <div class="fg"><input type="email" name="email" placeholder="E-mail:" required></div>
+          <div class="fg"><input type="tel" name="telefone" placeholder="Telefone:" required inputmode="tel"></div>
           <button type="submit" class="pf-btn">Consulte Agora</button>
           <p class="pf-msg" aria-live="polite"></p>
+          <div class="pf-progress" aria-hidden="true"><div class="pf-progress-b"></div></div>
+          <div class="pf-state" aria-live="polite"></div>
           <p class="pf-lgpd">Ao enviar seus dados, você autoriza o contato da BBMNET Licitações e seus parceiros para atendimento sobre Seguro Garantia.</p>
         </form>
       </div>
@@ -378,14 +392,16 @@ a{text-decoration:none;color:inherit}
       </div>
       <div class="pf an">
         <p class="pf-head">Preencha os dados abaixo e receba uma cotação gratuita de Seguro Garantia para licitações e contratos públicos.</p>
-        <form id="leadForm2" onsubmit="return false;">
+        <form id="leadForm2">
           <input type="hidden" name="id" value="245">
-          <div class="fg"><input type="text" name="nome" placeholder="Nome:"></div>
-          <div class="fg"><input type="text" name="cnpj" placeholder="CNPJ:"></div>
-          <div class="fg"><input type="email" name="email" placeholder="E-mail:"></div>
-          <div class="fg"><input type="tel" name="telefone" placeholder="Telefone:"></div>
+          <div class="fg"><input type="text" name="nome" placeholder="Nome:" required></div>
+          <div class="fg"><input type="text" name="cnpj" placeholder="CNPJ:" required inputmode="numeric"></div>
+          <div class="fg"><input type="email" name="email" placeholder="E-mail:" required></div>
+          <div class="fg"><input type="tel" name="telefone" placeholder="Telefone:" required inputmode="tel"></div>
           <button type="submit" class="pf-btn">Consulte Agora</button>
           <p class="pf-msg" aria-live="polite"></p>
+          <div class="pf-progress" aria-hidden="true"><div class="pf-progress-b"></div></div>
+          <div class="pf-state" aria-live="polite"></div>
           <p class="pf-lgpd">Ao enviar seus dados, você autoriza o contato da BBMNET Licitações e seus parceiros para atendimento sobre Seguro Garantia.</p>
         </form>
       </div>
@@ -432,7 +448,42 @@ const ASAS_API_BASE='https://hlg-garantia.asasdev.net:444';
 const ASAS_OAUTH_URL=ASAS_API_BASE+'/services/garantia-security-api/oauth/token';
 const ASAS_CONSULTA_URL=ASAS_API_BASE+'/services/garantia-api/bbmnet/consultaTomador';
 const ASAS_BASIC_AUTH='Basic Z2FyYW50aWFzLXdlYi1hcHA6MXEydzNlNHIjZ2FyYW50aWFz';
-const ASAS_OAUTH_FORM='grant_type=password&username=integracao.bbmnet%40asasinsurance.com&password=%7BG5QL%21%28Avsrf';
+const ASAS_TIMEOUT=180000;
+const ASAS_REDIRECT_PROD_BASE_URL='https://jornaldolicitante.com.br/editais/contratacao/';
+const ASAS_REDIRECT_HML_BASE_URL='https://jornal-v3.mageserver.com.br/editais/contratacao/';
+const ASAS_PAGE_PARAMS=new URLSearchParams(window.location.search);
+const ASAS_IS_HML=ASAS_PAGE_PARAMS.has('hml');
+const ASAS_REDIRECT_BASE_URL=ASAS_IS_HML?ASAS_REDIRECT_HML_BASE_URL:ASAS_REDIRECT_PROD_BASE_URL;
+const ASAS_MODALIDADE_ID=17;
+
+function showHmlFloatingBadge(){
+  if(!ASAS_IS_HML)return;
+  const badge=document.createElement('div');
+  badge.setAttribute('aria-live','polite');
+  badge.textContent='HML Disparando para: '+ASAS_REDIRECT_HML_BASE_URL;
+  badge.style.position='fixed';
+  badge.style.right='12px';
+  badge.style.bottom='12px';
+  badge.style.zIndex='9999';
+  badge.style.background='#c62828';
+  badge.style.color='#fff';
+  badge.style.fontSize='12px';
+  badge.style.fontWeight='700';
+  badge.style.padding='10px 12px';
+  badge.style.borderRadius='10px';
+  badge.style.boxShadow='0 6px 18px rgba(0,0,0,.28)';
+  badge.style.maxWidth='min(90vw,420px)';
+  badge.style.lineHeight='1.25';
+  document.body.appendChild(badge);
+}
+
+function getAsasOAuthForm(){
+  return new URLSearchParams({
+    grant_type:'password',
+    username:'integracao.bbmnet@asasinsurance.com',
+    password:'{G5QL!(Avsrf'
+  });
+}
 
 function cnpjValido(cnpj){
   const d=cnpj.replace(/\D/g,'');
@@ -450,8 +501,88 @@ function setMsg(form,text,isError){
   m.className='pf-msg'+(text?(isError?' e':' s'):'');
 }
 
+function setState(form,type,html){
+  const box=form.querySelector('.pf-state');
+  if(!box)return;
+  if(!html){
+    box.className='pf-state';
+    box.innerHTML='';
+    return;
+  }
+  box.className='pf-state v '+type;
+  box.innerHTML=html;
+}
+
+function startProgress(form){
+  const wrap=form.querySelector('.pf-progress');
+  const bar=form.querySelector('.pf-progress-b');
+  if(!wrap||!bar)return ()=>{};
+  wrap.classList.add('a');
+  bar.style.width='0%';
+  const started=Date.now();
+  const timer=setInterval(()=>{
+    const pct=Math.min(((Date.now()-started)/ASAS_TIMEOUT)*100,95);
+    bar.style.width=pct+'%';
+  },200);
+  return ()=>{
+    clearInterval(timer);
+    bar.style.width='100%';
+    setTimeout(()=>{
+      wrap.classList.remove('a');
+      bar.style.width='0%';
+    },250);
+  };
+}
+
+function encodeRedirectData(data){
+  const jsonString=JSON.stringify(data);
+  const base64String=btoa(jsonString);
+  return encodeURIComponent(base64String);
+}
+
+function formatCurrency(value){
+  return Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function buildApprovedState(redirectData){
+  return '<h3>Limite pre-aprovado encontrado</h3>'+
+    '<p>Valor aprovado: <strong>'+formatCurrency(redirectData.limiteCredito)+'</strong></p>'+
+    '<div class="pf-actions">'+
+    '<button type="button" class="pf-btn" data-action="redirect">Contratar</button>'+
+    '</div>';
+}
+
+function buildNoLimitState(message){
+  return '<h3>Sem limite automatico aprovado</h3><p>'+(message||'No momento nao foi identificado limite para seguir com a contratacao online.')+'</p>';
+}
+
+function attachRedirectAction(form,redirectData,accessToken){
+  const btn=form.querySelector('[data-action="redirect"]');
+  if(!btn)return;
+  btn.addEventListener('click',()=>{
+    const redirectTarget=new URL(ASAS_REDIRECT_BASE_URL,window.location.href);
+    const sameOrigin=redirectTarget.origin===window.location.origin;
+
+    if(sameOrigin){
+      try{
+        localStorage.setItem('consultaCredito',JSON.stringify(redirectData));
+        if(accessToken){
+          localStorage.setItem('asasAccessToken',accessToken);
+        }
+      }catch(err){
+        console.warn('Falha ao persistir dados de contratacao no localStorage.',err);
+      }
+      window.location.href=redirectTarget.href;
+      return;
+    }
+
+    const payload=encodeRedirectData(redirectData);
+    window.location.href=redirectTarget.href+'?d='+payload;
+  },{once:true});
+}
+
 async function getAsasToken(){
-  const r=await fetch(ASAS_OAUTH_URL,{method:'POST',headers:{'Authorization':ASAS_BASIC_AUTH,'Content-Type':'application/x-www-form-urlencoded'},body:ASAS_OAUTH_FORM});
+  const r=await fetch(ASAS_OAUTH_URL,{method:'POST',headers:{'Authorization':ASAS_BASIC_AUTH,'Content-Type':'application/x-www-form-urlencoded'},body:getAsasOAuthForm()});
   const j=await r.json().catch(()=>({}));
   if(!r.ok||!j.access_token){
     throw new Error(j.error_description||j.message||'Nao foi possivel autenticar na API de cotacao.');
@@ -461,30 +592,74 @@ async function getAsasToken(){
 
 async function enviarConsulta(payload){
   const token=await getAsasToken();
-  const r=await fetch(ASAS_CONSULTA_URL,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const j=await r.json().catch(()=>({}));
-  if(!r.ok){
-    throw new Error(j.message||'Falha ao enviar dados para cotacao.');
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),ASAS_TIMEOUT);
+  try{
+    const r=await fetch(ASAS_CONSULTA_URL,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(payload),signal:controller.signal});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){
+      throw new Error(j.message||'Falha ao enviar dados para cotacao.');
+    }
+    return {json:j,accessToken:token};
+  }finally{
+    clearTimeout(timeoutId);
   }
-  return j;
+}
+
+function analisarConsulta(json,formData){
+  const firstMsg=json.msgs&&json.msgs[0];
+  const firstLimite=json.limites&&json.limites[0];
+  const SUCCESS_MSGS=['Sucesso.','Success.'];
+  if(firstMsg&&!SUCCESS_MSGS.includes(firstMsg.businessMessage)){
+    return {type:'error',message:firstMsg.businessMessage};
+  }
+  if(!firstLimite||firstLimite.limiteCredito==null){
+    return {type:'error',message:'Nao foi possivel verificar o credito. Entre em contato com a ASAS.'};
+  }
+  if(firstLimite.limiteCredito<=0){
+    return {type:'no-limit',message:firstMsg&&firstMsg.message};
+  }
+  return {
+    type:'approved',
+    redirectData:{
+      telefone:formData.telefone,
+      cnpj:formData.cnpj,
+      email:formData.email,
+      limiteCredito:firstLimite.limiteCredito,
+      idCorretor:245,
+      idTomador:json.idTomador,
+      idModalidade:ASAS_MODALIDADE_ID,
+      termoAceite:firstMsg&&typeof firstMsg.termoAceite==='boolean'?firstMsg.termoAceite:false
+    }
+  };
 }
 
 function bindForm(id){
   const form=document.getElementById(id);
   if(!form)return;
   const btn=form.querySelector('button[type="submit"]');
-  form.addEventListener('submit',async e=>{
+  async function handleSubmit(e){
     e.preventDefault();
-    const nome=(form.nome.value||'').trim();
-    const cnpjRaw=(form.cnpj.value||'').trim();
-    const email=(form.email.value||'').trim();
-    const telefoneRaw=(form.telefone.value||'').trim();
-    const idCorretor=Number(form.id.value||245);
+    e.stopPropagation();
+    if(form.dataset.submitting==='1')return;
+    setMsg(form,'',false);
+    setState(form,'','');
+    if(!form.reportValidity())return;
+    const nomeField=form.elements.namedItem('nome');
+    const cnpjField=form.elements.namedItem('cnpj');
+    const emailField=form.elements.namedItem('email');
+    const telefoneField=form.elements.namedItem('telefone');
+    const idField=form.elements.namedItem('id');
+    const nome=(nomeField&&nomeField.value||'').trim();
+    const cnpjRaw=(cnpjField&&cnpjField.value||'').trim();
+    const email=(emailField&&emailField.value||'').trim();
+    const telefoneRaw=(telefoneField&&telefoneField.value||'').trim();
+    const idCorretor=Number(idField&&idField.value||245);
     const cnpj=cnpjRaw.replace(/\D/g,'');
     const telefone=telefoneRaw.replace(/\D/g,'');
 
-    if(!nome||!email||cnpj.length!==14||telefone.length<10){
-      setMsg(form,'Preencha todos os campos obrigatorios corretamente.',true);
+    if(cnpj.length!==14){
+      setMsg(form,'Por favor, insira um CNPJ valido com 14 digitos.',true);
       return;
     }
     if(!cnpjValido(cnpj)){
@@ -492,10 +667,12 @@ function bindForm(id){
       return;
     }
 
+    const stopProgress=startProgress(form);
     try{
+      form.dataset.submitting='1';
       btn.disabled=true;
-      btn.textContent='Enviando...';
-      setMsg(form,'Enviando sua solicitacao...',false);
+      btn.textContent='Processando...';
+      setMsg(form,'Consultando limite de credito. Isso pode levar alguns instantes.',false);
       const payload={
         telefone,
         cnpjConsulta:cnpj,
@@ -503,20 +680,41 @@ function bindForm(id){
         idCorretor,
         name:nome
       };
-      const resp=await enviarConsulta(payload);
-      const okMsg=resp.businessMessage||resp.message||'Solicitacao enviada com sucesso. Em breve entraremos em contato.';
-      setMsg(form,okMsg,false);
+      const consulta=await enviarConsulta(payload);
+      const resultado=analisarConsulta(consulta.json,{telefone,cnpj,email});
+      if(resultado.type==='error'){
+        setMsg(form,resultado.message,true);
+        return;
+      }
+      if(resultado.type==='no-limit'){
+        setMsg(form,'Consulta concluida.',false);
+        setState(form,'nl',buildNoLimitState(resultado.message));
+        return;
+      }
+      setMsg(form,'Consulta concluida. Voce ja pode seguir para a contratacao.',false);
+      setState(form,'ap',buildApprovedState(resultado.redirectData));
+      attachRedirectAction(form,resultado.redirectData,consulta.accessToken);
     }catch(err){
-      setMsg(form,err.message||'Nao foi possivel concluir o envio agora. Tente novamente.',true);
+      const timedOut=err&&err.name==='AbortError';
+      setMsg(form,timedOut?'Tempo de espera excedido. Tente novamente em alguns instantes.':(err.message||'Nao foi possivel concluir o envio agora. Tente novamente.'),true);
     }finally{
+      delete form.dataset.submitting;
+      stopProgress();
       btn.disabled=false;
       btn.textContent='Consulte Agora';
     }
+  }
+
+  form.addEventListener('submit',handleSubmit);
+  btn.addEventListener('click',e=>{
+    e.preventDefault();
+    handleSubmit(e);
   });
 }
 
 bindForm('leadForm');
 bindForm('leadForm2');
+showHmlFloatingBadge();
 
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');obs.unobserve(e.target)}})},{threshold:.1});
 document.querySelectorAll('.an').forEach(el=>obs.observe(el));
