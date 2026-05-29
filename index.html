@@ -534,8 +534,12 @@ function startProgress(form){
   };
 }
 
-function encodeRedirectData(data){
-  const jsonString=JSON.stringify(data);
+function encodeRedirectData(redirectData,accessToken){
+  const payloadData={
+    asasAccessToken:accessToken||null,
+    consultaCredito:redirectData
+  };
+  const jsonString=JSON.stringify(payloadData);
   const base64String=btoa(jsonString);
   return encodeURIComponent(base64String);
 }
@@ -576,7 +580,7 @@ function attachRedirectAction(form,redirectData,accessToken){
       return;
     }
 
-    const payload=encodeRedirectData(redirectData);
+    const payload=encodeRedirectData(redirectData,accessToken);
     window.location.href=redirectTarget.href+'?d='+payload;
   },{once:true});
 }
