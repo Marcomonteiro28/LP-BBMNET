@@ -534,12 +534,8 @@ function startProgress(form){
   };
 }
 
-function encodeRedirectData(redirectData,accessToken){
-  const payloadData={
-    asasAccessToken:accessToken||null,
-    consultaCredito:redirectData
-  };
-  const jsonString=JSON.stringify(payloadData);
+function encodeRedirectData(redirectData){
+  const jsonString=JSON.stringify(redirectData);
   const base64String=btoa(jsonString);
   return encodeURIComponent(base64String);
 }
@@ -580,7 +576,7 @@ function attachRedirectAction(form,redirectData,accessToken){
       return;
     }
 
-    const payload=encodeRedirectData(redirectData,accessToken);
+    const payload=encodeRedirectData(redirectData);
     window.location.href=redirectTarget.href+'?d='+payload;
   },{once:true});
 }
@@ -627,7 +623,6 @@ function analisarConsulta(json,formData){
     type:'approved',
     redirectData:{
       telefone:formData.telefone,
-      cnpj:formData.cnpj,
       email:formData.email,
       limiteCredito:firstLimite.limiteCredito,
       idCorretor:245,
@@ -685,7 +680,7 @@ function bindForm(id){
         name:nome
       };
       const consulta=await enviarConsulta(payload);
-      const resultado=analisarConsulta(consulta.json,{telefone,cnpj,email});
+      const resultado=analisarConsulta(consulta.json,{telefone,email});
       if(resultado.type==='error'){
         setMsg(form,resultado.message,true);
         return;
