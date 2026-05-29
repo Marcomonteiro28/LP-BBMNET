@@ -1,6 +1,13 @@
 # LP Seguro Garantia (ASAS)
 
 Guia rapido para integracao da Landing Page (LP) com o fluxo de contratacao.
+Acesso direto, dispara para o cliente em prod.
+https://meudominio.com/lp
+
+Acesso com ?hml dispara para o cliente HML
+exemplo https://meudominio.com/lp?hml
+
+A lp foi ajustada para ser hibrida, tanto para validação, quanto, ao seu local de hospedagem, podendo ser hospedada em qualquer doiminio a sua necessidade!
 
 ## 1) O que a LP faz
 
