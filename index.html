@@ -40,7 +40,19 @@ a{text-decoration:none;color:inherit}
    ============================================================ */
 .hd{background:var(--white);padding:10px 0;border-bottom:3px solid var(--blue);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .hd-in{display:flex;align-items:center;justify-content:space-between}
-.hd-logos{display:flex;align-items:center;gap:16px}
+.hd-logos {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+.hd-logos div {
+    display: flex;
+    gap: 25px;
+}
 .hd-logos img{height:22px;width:auto}
 .hd .btn{display:none}
 
@@ -442,7 +454,12 @@ a{text-decoration:none;color:inherit}
   <div class="w">
     <p class="ft-b">BBMNET Licitações &bull; Asas Garantias &bull; AllSeg Seguradora</p>
     <p>Seguro Garantia para licitações e contratos públicos</p>
-    <img src="data:image/webp;base64,UklGRoIDAABXRUJQVlA4THUDAAAv3EAKEOfhoI0kR3LvXoJ1/BHF/6ZhIG2bbAruX+ynoG0byb3xx3BAvzKEbFvIXoJ/DfroqWRSBj+CF3De7kG5O9KJsir5I34HSgeUP/ya0IF/iaYsxIMp8BfhEmgCIzJCqYEKSBkUIRNQaFBafQx6T1TemJny4XA271wYpi9A3da2J3F2o5g3YXq1poixC89I3gQHcv4nNvCUV/nKv4j+TwDGpH6I0Z6Qelag/TQn5qyG0BFz7dGcEvMRXGIWAJKcDI+O7D+R5eZv05wss7rp947YWc2KdsT/9CGaE/tZLSHTIKyjDz43oaz6UO9IuGRNSOoBzEkYa20v3KYCcEfGmwrALYnvGQWJU6Am6TTSqenC0R2A1Io8gFfZNGqbyDZAX0Rep3/xsiqEoQ5VbVuV77JF1ElUhJApjVsGpJLKqN9NzyGQ0jpqegklvXhHNPf2rA1nHUH4YkRV0zYU8mYFTHnrK6YKBlpDSJ1V0eDzYNaXYwimDrZK07+CKLUaNdxRMOQ7jjYFq96QFTWkAaVdEeWcBYuuWH2yqwBEPwPK4o64J25xTlcA+hQQrbshIW7mQzioZQC+B0W1zeizsArucNW4I/YzQhiqEYA0rKONuAhONa9DWEd6BfoUFsUdkwDA67Y9UcljCN5yxhQPnLlazlp2ywssW/ICkmHK2FQpI0/UHIt8pyz6AWRFJHIM+pIxhk4Ne9Y06hKiOzuiYSTxnBkxvxg4FsXdQjHwfdee6NBYAg67Mij3rEXHrIGU2q+UMi9JVQ6RARyLfWkOV807HhUBUCq5UjnColyGMbsS1sEd0XrDewyBIgFUvAmSMAqYBoUn1jGIK0mukBuVu24ZnNuVwhE2cN0CrZVj1UuDk8KzVbnslJ7SVwjLuV5PwVvBdcq90lACp4dvok1pVm67ozcnpXUsOOUGrzKYwQUwuxIXgWk/Miy9qCcqAsDSTvF4EeIQ5hCVqSB7DyHppgVCOMnwKtggBOw7yYfwBgUnuA7DibKyA34BuLc6nDR6Oc+Hgb3kB9DLz25p9AsAnNHhHRpIeQgkkZQAtmfnbQp8POUm1+/QGbDGoSBhpTEAJGeHscFzhOZTrjer0SzDPSNFMOjt2iYRGl/ODt4pv4PttMH0rt03YeC22+32zXk0/3HtMeAdkwX8cR9jME/OMGY5tuf9fwsA" /> 
+  </div>
+  <div class="ft-bg">
+
+        <img src="data:image/webp;base64,UklGRoIDAABXRUJQVlA4THUDAAAv3EAKEOfhoI0kR3LvXoJ1/BHF/6ZhIG2bbAruX+ynoG0byb3xx3BAvzKEbFvIXoJ/DfroqWRSBj+CF3De7kG5O9KJsir5I34HSgeUP/ya0IF/iaYsxIMp8BfhEmgCIzJCqYEKSBkUIRNQaFBafQx6T1TemJny4XA271wYpi9A3da2J3F2o5g3YXq1poixC89I3gQHcv4nNvCUV/nKv4j+TwDGpH6I0Z6Qelag/TQn5qyG0BFz7dGcEvMRXGIWAJKcDI+O7D+R5eZv05wss7rp947YWc2KdsT/9CGaE/tZLSHTIKyjDz43oaz6UO9IuGRNSOoBzEkYa20v3KYCcEfGmwrALYnvGQWJU6Am6TTSqenC0R2A1Io8gFfZNGqbyDZAX0Rep3/xsiqEoQ5VbVuV77JF1ElUhJApjVsGpJLKqN9NzyGQ0jpqegklvXhHNPf2rA1nHUH4YkRV0zYU8mYFTHnrK6YKBlpDSJ1V0eDzYNaXYwimDrZK07+CKLUaNdxRMOQ7jjYFq96QFTWkAaVdEeWcBYuuWH2yqwBEPwPK4o64J25xTlcA+hQQrbshIW7mQzioZQC+B0W1zeizsArucNW4I/YzQhiqEYA0rKONuAhONa9DWEd6BfoUFsUdkwDA67Y9UcljCN5yxhQPnLlazlp2ywssW/ICkmHK2FQpI0/UHIt8pyz6AWRFJHIM+pIxhk4Ne9Y06hKiOzuiYSTxnBkxvxg4FsXdQjHwfdee6NBYAg67Mij3rEXHrIGU2q+UMi9JVQ6RARyLfWkOV807HhUBUCq5UjnColyGMbsS1sEd0XrDewyBIgFUvAmSMAqYBoUn1jGIK0mukBuVu24ZnNuVwhE2cN0CrZVj1UuDk8KzVbnslJ7SVwjLuV5PwVvBdcq90lACp4dvok1pVm67ozcnpXUsOOUGrzKYwQUwuxIXgWk/Miy9qCcqAsDSTvF4EeIQ5hCVqSB7DyHppgVCOMnwKtggBOw7yYfwBgUnuA7DibKyA34BuLc6nDR6Oc+Hgb3kB9DLz25p9AsAnNHhHRpIeQgkkZQAtmfnbQp8POUm1+/QGbDGoSBhpTEAJGeHscFzhOZTrjer0SzDPSNFMOjt2iYRGl/ODt4pv4PttMH0rt03YeC22+32zXk0/3HtMeAdkwX8cR9jME/OMGY5tuf9fwsA" /> 
+
+
   </div>
 </footer>
 
